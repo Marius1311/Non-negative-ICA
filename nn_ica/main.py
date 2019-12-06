@@ -287,3 +287,47 @@ def run_nn_ica(X, t_tol=1e-1, t_neg=None, verbose=1, i_max=1e3, print_all=100,
         Y = R @ Y
 
         i += 1
+
+def plot_ica_reconstruction(data, labels=None, *args, **kwargs):
+    """Plotting function for ICA reconstruction
+
+    Parameters
+    --------
+    data: List[np.ndarray]
+        Matrices to be plotted.
+    titles: Union[List, Str, NoneType], optional (default: `None`)
+        Corresponding titles, if present
+    *args, **kwargs:
+        additional arguments for `sns.distplot`
+
+    Returns
+    --------
+    None
+    """
+
+    plt.close('all')
+
+    n_sources, n_mat = data[0].shape[0], len(data)
+    for i, d in enumerate(data):
+        assert d.shape[0] == n_sources, f'Wrong number of features for `data[{i}].shape[0]` == `{d.shape[0]}` != `{n_sources}`.'
+
+    if labels is not None and len(labels) != n_mat:
+        print(f'Inconsistent number of titles given `{len(labels)}` != `{n_mat}`, showing no labels.')
+        labels = None
+
+    fig, axes = plt.subplots(nrows=n_sources, ncols=n_mat, figsize=(4 * n_mat, 4 * n_sources))
+    if not isinstance(axes, np.ndarray):
+        axes = np.array([[axes]])
+    elif axes.ndim != 2:
+        # treat only 1 source specifically
+        axes = np.expand_dims(axes, axis=(n_sources) != 1)
+
+    for i, row in enumerate(axes):
+        for j, (A, ax) in enumerate(zip(data, row)):
+            sns.distplot(A[i, :], *args, ax=ax, kde=False,
+                         axlabel='{}_{}'.format(labels[j], i) if labels is not None else None,
+                         **kwargs)
+
+    fig.suptitle("Non-negative ICA")
+    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.show()
