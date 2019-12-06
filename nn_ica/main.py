@@ -2,6 +2,8 @@ import numpy as np
 from numpy.linalg import eig
 from numpy.linalg import norm
 from scipy.optimize import minimize_scalar
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def whiten(X, use_np=True):
